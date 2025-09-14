@@ -1,0 +1,63 @@
+#!/bin/bash
+
+function getArgs {
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      "-s"|"--source")
+        shift
+        SRC="$1"
+        shift
+        ;;
+      "-w"|"--width")
+        shift
+        dstWidth=$1
+        shift
+        ;;
+      "-h"|"--height")
+        shift
+        dstHeight=$1
+        shift
+        ;;
+      "-h"|"--help")
+        printHelp
+        exit 0
+        ;;
+      *)
+        echo "Not a valid option: $1"
+        printHelp
+        exit 1
+    esac
+  done
+}
+
+function printHelp {
+  cat << EOS
+Usage: splitmap <(-s | --source) path> [(-w | --width) px] [(-h | --height) px]
+                --help
+
+-s, --source  <path>     Required. Operate on the image at <path>
+                         The source dimensions must be 2112x3264 at 96 dpi
+-w, --width   <px>       Specify the destination width
+                         Default is ${dstWidth}
+-h, --height  <px>       Specify the destination height
+                         Default is ${dstHeight}
+-h, --help               Print this help and exit
+EOS
+}
+
+function splitMap {
+  dstDir="$(dirname "$SRC")"
+  dstBase="$(basename ${SRC/%.png/})"
+  for page in {1..8}; do
+    xoff=$(((${page} + 1 ) % 2 * ${dstWidth}))
+    yoff=$(((((${page} + 1) / 2) - 1)* ${dstHeight}))
+    magick "${SRC}" -crop ${dstWidth}x${dstHeight}+${xoff}+${yoff} -rotate 90 "${dstDir}/${dstBase}_${page}.png"
+  done
+}
+
+# Defaults
+dstWidth=1056
+dstHeight=816
+
+getArgs "$@"
+splitMap
