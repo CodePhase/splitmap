@@ -51,7 +51,7 @@ function splitMap {
   for page in {1..8}; do
     xoff=$(((${page} + 1 ) % 2 * ${dstWidth}))
     yoff=$(((((${page} + 1) / 2) - 1)* ${dstHeight}))
-    magick "${SRC}" -crop ${dstWidth}x${dstHeight}+${xoff}+${yoff} -rotate 90 "${dstDir}/${dstBase}_${page}.png"
+    magick "${SRC}" -crop ${dstWidth}x${dstHeight}+${xoff}+${yoff} -rotate 90 "${dstDir}/${dstBase}-${page}.png"
   done
 }
 
